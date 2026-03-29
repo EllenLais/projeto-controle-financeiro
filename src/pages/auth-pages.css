@@ -1,0 +1,32 @@
+.auth-form {
+  display: grid;
+  gap: 20px;
+}
+
+.auth-form h2 {
+  margin: 10px 0 8px;
+  font-size: 2rem;
+}
+
+.auth-form p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.auth-form__eyebrow {
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.auth-form__body {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-form__footer a {
+  color: var(--primary);
+  font-weight: 700;
+}

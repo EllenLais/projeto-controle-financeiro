@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "controle-financeiro-prod",
+    "development": "controle-financeiro-dev-cb216",
+    "production": "controle-financeiro-prod"
+  }
+}
