@@ -1,0 +1,94 @@
+name: Deploy Firebase
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create development env file
+        run: |
+          cat <<EOF > .env.development
+          VITE_FIREBASE_API_KEY=${{ secrets.DEV_VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.DEV_VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID=${{ secrets.DEV_VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.DEV_VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.DEV_VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID=${{ secrets.DEV_VITE_FIREBASE_APP_ID }}
+          EOF
+
+      - name: Build development app
+        run: npm run build:dev
+
+      - name: Configure Firebase credentials
+        run: |
+          cat <<EOF > "$RUNNER_TEMP/firebase-dev-service-account.json"
+          ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}
+          EOF
+        shell: bash
+
+      - name: Deploy development
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-dev-service-account.json
+        run: npx firebase-tools deploy --project controle-financeiro-dev-cb216 --non-interactive
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create production env file
+        run: |
+          cat <<EOF > .env.production
+          VITE_FIREBASE_API_KEY=${{ secrets.PROD_VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.PROD_VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID=${{ secrets.PROD_VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.PROD_VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.PROD_VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID=${{ secrets.PROD_VITE_FIREBASE_APP_ID }}
+          EOF
+
+      - name: Build production app
+        run: npm run build:prod
+
+      - name: Configure Firebase credentials
+        run: |
+          cat <<EOF > "$RUNNER_TEMP/firebase-prod-service-account.json"
+          ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
+          EOF
+        shell: bash
+
+      - name: Deploy production
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-prod-service-account.json
+        run: npx firebase-tools deploy --project controle-financeiro-prod --non-interactive
