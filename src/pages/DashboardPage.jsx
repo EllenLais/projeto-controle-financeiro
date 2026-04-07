@@ -68,6 +68,9 @@ export function DashboardPage() {
 
   return (
     <div className="dashboard-page">
+      <div className="dashboard-page__release-badge">
+        Nova versao publicada em 07/04/2026
+      </div>
       <section className="dashboard-page__header">
         <div>
           <span className="dashboard-page__eyebrow">Painel principal</span>

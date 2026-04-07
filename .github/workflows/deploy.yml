@@ -10,6 +10,8 @@ jobs:
   deploy-dev:
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -38,21 +40,19 @@ jobs:
       - name: Build development app
         run: npm run build:dev
 
-      - name: Configure Firebase credentials
-        run: |
-          cat <<EOF > "$RUNNER_TEMP/firebase-dev-service-account.json"
-          ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}
-          EOF
-        shell: bash
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}
 
       - name: Deploy development
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-dev-service-account.json
         run: npx firebase-tools deploy --project controle-financeiro-dev-cb216 --non-interactive
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
@@ -81,14 +81,10 @@ jobs:
       - name: Build production app
         run: npm run build:prod
 
-      - name: Configure Firebase credentials
-        run: |
-          cat <<EOF > "$RUNNER_TEMP/firebase-prod-service-account.json"
-          ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
-          EOF
-        shell: bash
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
 
       - name: Deploy production
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-prod-service-account.json
         run: npx firebase-tools deploy --project controle-financeiro-prod --non-interactive

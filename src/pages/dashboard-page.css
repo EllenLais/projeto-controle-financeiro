@@ -3,6 +3,18 @@
   gap: 24px;
 }
 
+.dashboard-page__release-badge {
+  justify-self: start;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.18), rgba(255, 209, 102, 0.28));
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
 .dashboard-page__header {
   display: flex;
   align-items: end;
