@@ -10,8 +10,17 @@ jobs:
   deploy-dev:
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
+    environment: dev
     permissions:
       contents: read
+    env:
+      DEV_VITE_FIREBASE_API_KEY: ${{ secrets.DEV_VITE_FIREBASE_API_KEY }}
+      DEV_VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.DEV_VITE_FIREBASE_AUTH_DOMAIN }}
+      DEV_VITE_FIREBASE_PROJECT_ID: ${{ secrets.DEV_VITE_FIREBASE_PROJECT_ID }}
+      DEV_VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.DEV_VITE_FIREBASE_STORAGE_BUCKET }}
+      DEV_VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.DEV_VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      DEV_VITE_FIREBASE_APP_ID: ${{ secrets.DEV_VITE_FIREBASE_APP_ID }}
+      FIREBASE_SERVICE_ACCOUNT_DEV: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}
 
     steps:
       - name: Checkout
@@ -26,15 +35,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate development secrets
+        run: |
+          test -n "$DEV_VITE_FIREBASE_API_KEY" || (echo "Missing DEV_VITE_FIREBASE_API_KEY" && exit 1)
+          test -n "$DEV_VITE_FIREBASE_AUTH_DOMAIN" || (echo "Missing DEV_VITE_FIREBASE_AUTH_DOMAIN" && exit 1)
+          test -n "$DEV_VITE_FIREBASE_PROJECT_ID" || (echo "Missing DEV_VITE_FIREBASE_PROJECT_ID" && exit 1)
+          test -n "$DEV_VITE_FIREBASE_STORAGE_BUCKET" || (echo "Missing DEV_VITE_FIREBASE_STORAGE_BUCKET" && exit 1)
+          test -n "$DEV_VITE_FIREBASE_MESSAGING_SENDER_ID" || (echo "Missing DEV_VITE_FIREBASE_MESSAGING_SENDER_ID" && exit 1)
+          test -n "$DEV_VITE_FIREBASE_APP_ID" || (echo "Missing DEV_VITE_FIREBASE_APP_ID" && exit 1)
+          test -n "$FIREBASE_SERVICE_ACCOUNT_DEV" || (echo "Missing FIREBASE_SERVICE_ACCOUNT_DEV" && exit 1)
+
       - name: Create development env file
         run: |
           cat <<EOF > .env.development
-          VITE_FIREBASE_API_KEY=${{ secrets.DEV_VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.DEV_VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID=${{ secrets.DEV_VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.DEV_VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.DEV_VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID=${{ secrets.DEV_VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_API_KEY=$DEV_VITE_FIREBASE_API_KEY
+          VITE_FIREBASE_AUTH_DOMAIN=$DEV_VITE_FIREBASE_AUTH_DOMAIN
+          VITE_FIREBASE_PROJECT_ID=$DEV_VITE_FIREBASE_PROJECT_ID
+          VITE_FIREBASE_STORAGE_BUCKET=$DEV_VITE_FIREBASE_STORAGE_BUCKET
+          VITE_FIREBASE_MESSAGING_SENDER_ID=$DEV_VITE_FIREBASE_MESSAGING_SENDER_ID
+          VITE_FIREBASE_APP_ID=$DEV_VITE_FIREBASE_APP_ID
           EOF
 
       - name: Build development app
@@ -43,7 +62,7 @@ jobs:
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DEV }}
+          credentials_json: ${{ env.FIREBASE_SERVICE_ACCOUNT_DEV }}
 
       - name: Deploy development
         run: npx firebase-tools deploy --project controle-financeiro-dev-cb216 --non-interactive
@@ -51,8 +70,17 @@ jobs:
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: prod
     permissions:
       contents: read
+    env:
+      PROD_VITE_FIREBASE_API_KEY: ${{ secrets.PROD_VITE_FIREBASE_API_KEY }}
+      PROD_VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.PROD_VITE_FIREBASE_AUTH_DOMAIN }}
+      PROD_VITE_FIREBASE_PROJECT_ID: ${{ secrets.PROD_VITE_FIREBASE_PROJECT_ID }}
+      PROD_VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.PROD_VITE_FIREBASE_STORAGE_BUCKET }}
+      PROD_VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.PROD_VITE_FIREBASE_MESSAGING_SENDER_ID }}
+      PROD_VITE_FIREBASE_APP_ID: ${{ secrets.PROD_VITE_FIREBASE_APP_ID }}
+      FIREBASE_SERVICE_ACCOUNT_PROD: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
 
     steps:
       - name: Checkout
@@ -67,15 +95,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate production secrets
+        run: |
+          test -n "$PROD_VITE_FIREBASE_API_KEY" || (echo "Missing PROD_VITE_FIREBASE_API_KEY" && exit 1)
+          test -n "$PROD_VITE_FIREBASE_AUTH_DOMAIN" || (echo "Missing PROD_VITE_FIREBASE_AUTH_DOMAIN" && exit 1)
+          test -n "$PROD_VITE_FIREBASE_PROJECT_ID" || (echo "Missing PROD_VITE_FIREBASE_PROJECT_ID" && exit 1)
+          test -n "$PROD_VITE_FIREBASE_STORAGE_BUCKET" || (echo "Missing PROD_VITE_FIREBASE_STORAGE_BUCKET" && exit 1)
+          test -n "$PROD_VITE_FIREBASE_MESSAGING_SENDER_ID" || (echo "Missing PROD_VITE_FIREBASE_MESSAGING_SENDER_ID" && exit 1)
+          test -n "$PROD_VITE_FIREBASE_APP_ID" || (echo "Missing PROD_VITE_FIREBASE_APP_ID" && exit 1)
+          test -n "$FIREBASE_SERVICE_ACCOUNT_PROD" || (echo "Missing FIREBASE_SERVICE_ACCOUNT_PROD" && exit 1)
+
       - name: Create production env file
         run: |
           cat <<EOF > .env.production
-          VITE_FIREBASE_API_KEY=${{ secrets.PROD_VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.PROD_VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID=${{ secrets.PROD_VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.PROD_VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.PROD_VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID=${{ secrets.PROD_VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_API_KEY=$PROD_VITE_FIREBASE_API_KEY
+          VITE_FIREBASE_AUTH_DOMAIN=$PROD_VITE_FIREBASE_AUTH_DOMAIN
+          VITE_FIREBASE_PROJECT_ID=$PROD_VITE_FIREBASE_PROJECT_ID
+          VITE_FIREBASE_STORAGE_BUCKET=$PROD_VITE_FIREBASE_STORAGE_BUCKET
+          VITE_FIREBASE_MESSAGING_SENDER_ID=$PROD_VITE_FIREBASE_MESSAGING_SENDER_ID
+          VITE_FIREBASE_APP_ID=$PROD_VITE_FIREBASE_APP_ID
           EOF
 
       - name: Build production app
@@ -84,7 +122,7 @@ jobs:
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PROD }}
+          credentials_json: ${{ env.FIREBASE_SERVICE_ACCOUNT_PROD }}
 
       - name: Deploy production
         run: npx firebase-tools deploy --project controle-financeiro-prod --non-interactive
