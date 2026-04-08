@@ -25,6 +25,8 @@ export function AppShell() {
           <strong>{user?.email}</strong>
         </div>
 
+        <div className="app-shell__status-badge">Ambiente online e atualizado</div>
+
         <div className="app-shell__sidebar-actions">
           <Button variant="secondary" onClick={toggleTheme}>
             {theme === "dark" ? "Modo claro" : "Modo escuro"}
